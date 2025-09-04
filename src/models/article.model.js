@@ -13,7 +13,7 @@ export const Article = sequelize.define('Article', {
     allowNull: false
   },
   content: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT(),
     allowNull: false
   },
   excerpt: {
@@ -30,10 +30,16 @@ export const Article = sequelize.define('Article', {
     allowNull: false
   }
 }, {
-  timestamps: true,
-      createdAt: true,
-      updatedAt: true,
+  timestamps: true, 
 });
 
-Article.belongsTo(User, { foreignKey: "user_id", as: "author" });
-User.hasMany(Article, { foreignKey: "user_id", as: "articles" });
+//Relación uno a muchos
+Article.belongsTo(User, { 
+  foreignKey: "user_id", 
+  as: "author" 
+});
+
+User.hasMany(Article, { 
+  foreignKey: "user_id", 
+  as: "articles" 
+});

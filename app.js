@@ -1,12 +1,17 @@
 import express from "express";
 import dotenv from "dotenv";
 import { startDB } from "./src/config/database.js";
+import { User } from "./src/models/user.model.js";
+import { Article } from "./src/models/article.model.js";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use("/api", User);
+app.use("/api", Article);
+// app.use("/api", );
 
 app.listen(PORT, async () => {
     await startDB();

@@ -1,9 +1,6 @@
-import {rtrim} from "express-validator";
-import { Article, User } from "../models/article.model.js";
+import { Article } from "../models/article.model.js";
 
-
-
-//Esta funcionalidad crea los usuarios en nuestra base de datos
+//Esta funcionalidad crea los articulos en nuestra base de datos
 export const createArticle = async(req, res) => {
    
     const { title, content, excerpt, status, user_id } = req.body;
@@ -15,7 +12,7 @@ export const createArticle = async(req, res) => {
   }
 };
 
-//Esta funcionalidad trae a todos los ususarios
+//Esta funcionalidad trae a todos los articulos
 
 export const getAllArticle = async(req, res) => {
   try {
@@ -30,7 +27,7 @@ export const getAllArticle = async(req, res) => {
   }
 };
 
-//Esta funcionalidad trae los usuarios por Id estrictamente
+//Esta funcionalidad trae los articulos por Id estrictamente
 
 export const getArticleById = async(req, res) => {
   try {
@@ -49,7 +46,7 @@ export const getArticleById = async(req, res) => {
 };
 
 
-//Esta funcionalidad actualiza la información de los usuarios por Id
+//Esta funcionalidad actualiza la información de los articulos por Id
 
 export const updateArticle = async(req, res) =>{
   
@@ -69,15 +66,15 @@ export const updateArticle = async(req, res) =>{
   }
 };
 
-//Esta funcionalidad elimina a los usuarios por Id estrictamente
+//Esta funcionalidad elimina a los articulos por Id estrictamente
 
 export const deleteArticle = async(req, res) =>{
     try {
-        const deleted = await User.destroy({where: {id: req.params.id}});
-        //es para hacer un delete al usuario que coincida con el id que deseamos eliminar
-    if(deleted) return res.json({message: "El usuario fue borrado de la base de datos"});
-    return res.status(404).json({message: "El usuario no fue encontrado"});
+        const deleted = await Article.destroy({where: {id: req.params.id}});
+        //es para hacer un delete al articulo que coincida con el id que deseamos eliminar
+    if(deleted === 0) return res.status(404).json({message: "El articulo no fue encontrado"});
+        return res.json({message: "El articulo fue borrado de la base de datos"});
     } catch (error) {
     res.status(500).json({Message: error.message});  
     }
-}
+};

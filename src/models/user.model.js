@@ -8,8 +8,9 @@ export const User = sequelize.define("users",{
     primaryKey: true,
     },
     username: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(20),
         allowNull: false,
+        unique: true,
     },
     email: {
         type: DataTypes.STRING(100),
@@ -17,13 +18,15 @@ export const User = sequelize.define("users",{
         allowNull: false,
     },
     password: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(255),
         allowNull: false,
     },
     role: {
         type: DataTypes.ENUM("user", "admin"),
-        allowNull: false
+        allowNull: false,
+        defaultValue: "user"
     }
 },{
-        timestamps: false
+        timestamps: true,
+        paranoid: true
     });
