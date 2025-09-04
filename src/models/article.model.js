@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/database.js';
+import { User } from "../models/user.model.js"
 
 export const Article = sequelize.define('Article', {
   id: {
@@ -21,6 +22,7 @@ export const Article = sequelize.define('Article', {
   },
   status: {
     type: DataTypes.ENUM('published', 'archived'),
+    allowNull: false,
     defaultValue: 'published'
   },
   user_id: {
@@ -29,4 +31,9 @@ export const Article = sequelize.define('Article', {
   }
 }, {
   timestamps: true,
+      createdAt: true,
+      updatedAt: true,
 });
+
+Article.belongsTo(User, { foreignKey: "user_id", as: "author" });
+User.hasMany(Article, { foreignKey: "user_id", as: "articles" });

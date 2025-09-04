@@ -1,67 +1,77 @@
-import { User } from "../models/user.models.js";
-import { Op } from "sequelize";
+import {rtrim} from "express-validator";
+import { Article, User } from "../models/article.model.js";
+
 
 
 //Esta funcionalidad crea los usuarios en nuestra base de datos
-export const createUser = async(req, res) => {
-    
-    const {name, email, password } = req.body;
-
-    try {
-        const user = await User.create({name, email, password});
-        res.status(201).json({Message: "El usuario ha sido creado con éxito: ", user});
-    } catch (error) {
-        console.log("Error en la creación del usuario: ", error)
-        res.status(500).json({Message: error.message});
-    }
-}
+export const createArticle = async(req, res) => {
+   
+    const { title, content, excerpt, status, user_id } = req.body;
+  try {
+    const article = await Article.create({ title, content, excerpt, status, user_id,});
+    res.status(201).json({ Message: "El artículo fue creado con exito" });
+  } catch (error) {
+    res.status(500).json({ Error: error.message });
+  }
+};
 
 //Esta funcionalidad trae a todos los ususarios
 
-export const getAllUser = async(req, res) => {
-    try {
-        const users = await User.findAll();
-        if(users.length === 0) return res.status(404).json({Message: "No existen usuarios en la base de datos"});
-        res.json(users)
-    } catch (error) {
-        res.status(500).json({message: error.message});
+export const getAllArticle = async(req, res) => {
+  try {
+    const articles = await Article.findAll();
+
+    if (articles.length === 0) {
+      return res.status(404).json({ Message: "No hay ningun artículo" });
     }
-}
+    return res.status(200).json(articles);
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};
 
 //Esta funcionalidad trae los usuarios por Id estrictamente
 
-export const getUserById = async(req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id);
-        if(user) return res.status(200).json(user);
-        return res.status(404).json({Message: "El usuario no existe en la base de datos."});
-    } catch (error) {
-        res.status(500).json({Message: error.message});
+export const getArticleById = async(req, res) => {
+  try {
+    const article = await Article.findByPk(req.params.id, {
+      attributes: {
+        exclude: ["user_id"],
+      },
+    });
+    if (article) {
+      return res.status(200).json(article);
     }
-}
+    return res.status(404).json({ Message: "El articulo no fue encontrado" });
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};
+
 
 //Esta funcionalidad actualiza la información de los usuarios por Id
 
-export const updateUser = async(req, res) =>{
-    
-   const {name, email, password } = req.body;
+export const updateArticle = async(req, res) =>{
+  
+    const { title, content, excerpt, status, user_id } = req.body;
 
-    try {
-
-        const [updated] = await User.update({name, email, password}, {where: {id: req.params.id}});
-    //si las filas afectadas son mayores a 0, el ususario se va a actualiar con éxito
-    if (updated === 0) res.status(400).json({Message: "El usuario no existe o no fue encontrada"})
-
-    return res.status(200).json({Message: "El usuario fue actualizado con éxito"});
-
-    } catch (error) {
-        res.status(500).json({Message: error.message});
+  try {
+    const [updated] = await Article.update(
+      { title, content, excerpt, status, user_id },
+      { where: { id: req.params.id } }
+    );
+    if (updated === 0) {
+      return res.status(404).json({ Message: "El articulo no existe" });
     }
-}
+    res.status(200).json({ Message: "Se actualizo un articulo" });
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};
 
 //Esta funcionalidad elimina a los usuarios por Id estrictamente
 
-export const deleteUser = async(req, res) =>{
+export const deleteArticle = async(req, res) =>{
     try {
         const deleted = await User.destroy({where: {id: req.params.id}});
         //es para hacer un delete al usuario que coincida con el id que deseamos eliminar
