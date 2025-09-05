@@ -24,10 +24,6 @@ export const Article = sequelize.define('Article', {
     type: DataTypes.ENUM('published', 'archived'),
     allowNull: false,
     defaultValue: 'published'
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
   }
 }, {
   timestamps: true, 

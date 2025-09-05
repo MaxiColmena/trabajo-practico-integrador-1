@@ -1,20 +1,5 @@
 import { User } from "../models/user.model.js";
 
-//Esta funcionalidad crea los usuarios en nuestra base de datos
-export const createUser = async(req, res) => {
-
-    const {username, email, password, role } = req.body;
-
-    try {
-
-        const user = await User.create({username, email, password, role});
-        res.status(201).json({Message: "El usuario ha sido creado con éxito: ", user});
-    } catch (error) {
-        console.log("Error en la creación del usuario: ", error)
-        res.status(500).json({Message: error.message});
-    }
-}
-
 //Esta funcionalidad trae a todos los ususarios
 
 export const getAllUser = async(req, res) => {
