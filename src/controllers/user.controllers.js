@@ -1,10 +1,21 @@
 import { User } from "../models/user.model.js";
+import { Profile } from "../models/profile.model.js";
+import { Article } from "../models/article.model.js";
 
 //Esta funcionalidad trae a todos los ususarios
 
 export const getAllUser = async(req, res) => {
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: Profile,
+          attributes: { exclude: ["id", "user_id"] },
+          as: "profile",
+        },
+      ],
+    });
         if(users.length === 0) return res.status(404).json({Message: "No existen usuarios en la base de datos"});
         return res.status(200).json(users);
     } catch (error) {
@@ -16,7 +27,16 @@ export const getAllUser = async(req, res) => {
 
 export const getUserById = async(req, res) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: ArticleModel,
+          attributes: { exclude: ["user_id", "id"] },
+          as: "articles",
+        },
+      ],
+    });
         if(user) return res.status(200).json(user);
         return res.status(404).json({Message: "El usuario no existe en la base de datos."});
     } catch (error) {

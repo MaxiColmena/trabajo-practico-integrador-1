@@ -78,3 +78,39 @@ export const deleteArticle = async(req, res) =>{
     res.status(500).json({Message: error.message});  
     }
 };
+
+
+export const articlesGetUser = async (req, res) => {
+  try {
+    const articleUserLogin = await UserModel.findByPk(req.user.id, {
+      attributes: { exclude: ["password"] },
+      include: {
+        model: ArticleModel,
+        as: "articles",
+      },
+    });
+
+    return res.status(200).json(articleUserLogin);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const articleGetIdUser = async (req, res) => {
+  try {
+    const articleOne = await ArticleModel.findOne({
+      where: {
+        id: id,
+        user_id: req.user.id,
+      },
+    });
+
+    if (!articleOne) {
+      return res.status(404).json({ message: "Artículo no encontrado" });
+    }
+
+    return res.status(200).json(article);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};

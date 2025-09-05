@@ -1,7 +1,6 @@
-import jwt from "jsonwebtoken";
-import { Profile } from "../models/profile.model.js";
-import { User } from "../models/user.model.js";
-import { comparePassword, hashPassword } from "../helpers/bcrypt.helper.js";
+ import { Profile } from "../models/profile.model.js";
+ import { User } from "../models/user.model.js";
+ import { comparePassword, hashPassword } from "../helpers/bcrypt.helper.js";
 
 export const registerCreate = async (req, res) => {
   const { username, email, password, role, first_name, last_name, biography, avatar_url, birth_date } = req.body;
