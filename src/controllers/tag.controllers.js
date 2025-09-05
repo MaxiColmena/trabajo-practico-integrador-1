@@ -1,72 +1,78 @@
-import { User } from "../models/tag.model.js";
-import { Op } from "sequelize";
+import { Article } from "../models/article.model.js";
+import { Tag } from "../models/tag.model.js";
 
-//Esta funcionalidad crea los usuarios en nuestra base de datos
-export const createTag = async(req, res) => {
-    
-    const {name, email, password } = req.body;
+export const createTag = async (req, res) => {
+  const { name } = req.body;
+  try {
+    const tag = await Tag.create({
+      name,
+    });
+    res.status(201).json({ Message: "La etiqueta fue creada con exito" });
+  } catch (error) {
+    res.status(500).json({ Error: error.message });
+  }
+};
 
-    try {
-        const user = await User.create({name, email, password});
-        res.status(201).json({Message: "El usuario ha sido creado con éxito: ", user});
-    } catch (error) {
-        console.log("Error en la creación del usuario: ", error)
-        res.status(500).json({Message: error.message});
+export const updateTag = async (req, res) => {
+  const { name } = req.body;
+  try {
+    const [updated] = await Tag.update(
+      { name },
+      { where: { id: req.params.id } }
+    );
+    if (updated === 0) {
+      return res.status(404).json({ Message: "Tag no existe" });
     }
-}
+    res.status(200).json({ Message: "Se actualizo un tag con éxito" });
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};
 
-//Esta funcionalidad trae a todos los ususarios
-
-export const getAllTag = async(req, res) => {
-    try {
-        const users = await User.findAll();
-        if(users.length === 0) return res.status(404).json({Message: "No existen usuarios en la base de datos"});
-        res.json(users)
-    } catch (error) {
-        res.status(500).json({message: error.message});
+export const getAllTag = async (req, res) => {
+  try {
+    const etiquetas = await Tag.findAll();
+    if (etiquetas.length === 0) {
+      return res
+        .status(404)
+        .json({ Message: "No hay ninguna etiqueta en la base de datos" });
     }
-}
+    return res.status(200).json(etiquetas);
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};
 
-//Esta funcionalidad trae los usuarios por Id estrictamente
-
-export const getTagById = async(req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id);
-        if(user) return res.status(200).json(user);
-        return res.status(404).json({Message: "El usuario no existe en la base de datos."});
-    } catch (error) {
-        res.status(500).json({Message: error.message});
+export const getTagById = async (req, res) => {
+  try {
+    const etiqueta = await Tag.findByPk(req.params.id, {
+      include: [
+        {
+          model: Article,
+          attributes: { exclude: ["user_id"] },
+          as: "articles",
+          through: { attributes: [] },
+        },
+      ],
+    });
+    if (etiqueta) {
+      return res.status(200).json(etiqueta);
     }
-}
+    return res.status(404).json({ Message: "La etiqueta no fue encontrada" });
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};
 
-//Esta funcionalidad actualiza la información de los usuarios por Id
-
-export const updateTag = async(req, res) =>{
-    
-   const {name, email, password } = req.body;
-
-    try {
-
-        const [updated] = await User.update({name, email, password}, {where: {id: req.params.id}});
-    //si las filas afectadas son mayores a 0, el ususario se va a actualiar con éxito
-    if (updated === 0) res.status(400).json({Message: "El usuario no existe o no fue encontrada"})
-
-    return res.status(200).json({Message: "El usuario fue actualizado con éxito"});
-
-    } catch (error) {
-        res.status(500).json({Message: error.message});
-    }
-}
-
-//Esta funcionalidad elimina a los usuarios por Id estrictamente
-
-export const deleteTag = async(req, res) =>{
-    try {
-        const deleted = await User.destroy({where: {id: req.params.id}});
-        //es para hacer un delete al usuario que coincida con el id que deseamos eliminar
-    if(deleted) return res.json({message: "El usuario fue borrado de la base de datos"});
-    return res.status(404).json({message: "El usuario no fue encontrado"});
-    } catch (error) {
-    res.status(500).json({Message: error.message});  
-    }
-}
+export const deleteTag = async (req, res) => {
+  try {
+    const deleted = await Tag.destroy({
+      where: { id: req.params.id },
+    });
+    if (deleted === 0)
+      return res.status(404).json({ Message: "La etiqueta no fue encontrada" });
+    res.status(200).json({ Message: "Etiqueta eliminada." });
+  } catch (error) {
+    res.status(500).json({ Message: error.message });
+  }
+};

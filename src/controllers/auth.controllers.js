@@ -1,38 +1,71 @@
- import { Profile } from "../models/profile.model.js";
- import { User } from "../models/user.model.js";
- import { comparePassword, hashPassword } from "../helpers/bcrypt.helper.js";
+import { matchedData } from "express-validator";
+import { Profile } from "../models/profile.model.js";
+import { User } from "../models/user.model.js";
+import { comparePassword, hashPassword } from "../helpers/bcrypt.helper.js";
+import { generateToken } from "../helpers/jwt.helper.js";
 
-export const registerCreate = async (req, res) => {
-  const { username, email, password, role, first_name, last_name, biography, avatar_url, birth_date } = req.body;
+export const register = async (req, res) => {
   try {
+    const data = matchedData(req, { locations: ["body"] });
+    const hashedPassword = await hashPassword(data.password);
+
     const user = await User.create({
-      username: username,
-      email: email,
-      password: password,
-      role: role,
+      username: data.username,
+      email: data.email,
+      password: hashedPassword,
+      role: data.role,
     });
 
     await Profile.create({
-        first_name: first_name,
-        last_name: last_name,
-        biography: biography,
-        avatar_url: avatar_url,
-        birth_date: birth_date,
-        user_id: user.id
+      first_name: data.first_name,
+      last_name: data.last_name,
+      biography: data.biography,
+      avatar_url: data.avatar_url,
+      birth_date: data.birth_date,
+      user_id: user.id,
     });
 
-    // const hashedPassword = await hashPassword(password);
+    return res.status(201).json({ message: "Usuario registrado exitosamente" });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Error al registrar usuario", error });
+  }
+};
 
-    // await UserModel.create({
-    //   username: username,
-    //   email: email,
-    //   password: hashedPassword,
-    //   person_id: person.id,
-    // });
-
-    res.status(201).json({
-      msg: "usuario creado correctamente",
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    // 1. Buscar usuario en la base de datos
+    const user = await User.findOne({
+      where: { username }, // Solo buscamos por username
+      include: {
+        model: Profile,
+        attributes: ["first_name", "last_name"],
+        as: "profile",
+      },
     });
+    if (!user) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
+    }
+    // 2. Comparar contraseña ingresada con hash almacenado
+    const validPassword = await comparePassword(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
+    }
+    // 3. Si la contraseña es correcta, generar JWT
+    const token = generateToken({
+      id: user.id,
+      name: user.profile.first_name,
+      lastname: user.profile.last_name,
+      role: user.role,
+    });
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60, // 1 hora
+    });
+    return res.json({ message: "Login exitoso" });
   } catch (error) {
     res.status(500).json({
       msg: "Error interno del servidor",
@@ -40,85 +73,7 @@ export const registerCreate = async (req, res) => {
   }
 };
 
-// export const login = async (req, res) => {
-//   const { username, password } = req.body;
-
-//   try {
-//     const user = await User.findOne({
-//       where: {
-//         username: username,
-//         // password: askdjakshd123123,
-//       },
-//       include: {
-//         model: PersonModel,
-//         as: "person",
-//       },
-//     });
-
-//     if (!user) {
-//       return res.status(404).json({
-//         msg: "El usuario o la contraseña no coincide",
-//       });
-//     }
-
-//     const isMatch = await comparePassword(password, user.password);
-
-//     if (!isMatch) {
-//       return res.status(404).json({
-//         msg: "El usuario o la contraseña no coincide",
-//       });
-//     }
-
-//     if (!user) {
-//       return res.status(404).json({
-//         msg: "Credenciales Incorrectas",
-//       });
-//     }
-
-//     // generar un token forma 1 con helpers (RECOMENDADA)
-//     // const token = generateToken(user);
-
-//     // generar un token forma 2
-//     const token = jwt.sign(
-//       {
-//         id: user.id,
-//         name: user.person.name,
-//         lastname: user.person.lastname,
-//       },
-//       "s3cr3t",
-//       {
-//         expiresIn: "1h",
-//       }
-//     );
-
-//     // Enviar token como cookie
-//     res.cookie("token", token, {
-//       httpOnly: true, // No accesible desde JavaScript
-//       maxAge: 1000 * 60 * 60, // 1 hora
-//     });
-
-//     return res.status(200).json({
-//       msg: "Logueado correctamente",
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       msg: "Error interno del servidor",
-//     });
-//   }
-// };
-
-// export const logout = async (req, res) => {
-//   res.clearCookie("token"); // Eliminar cookie del navegador
-//   return res.json({ message: "Logout exitoso" });
-// };
-
-// export const profile = async (req, res) => {
-//   const user = req.userLogged;
-
-//   try {
-//     res.status(200).json({
-//       name: user.name,
-//       lastname: user.lastname,
-//     });
-//   } catch (error) {}
-// };
+export const logout = (req, res) => {
+  res.clearCookie("token");
+  return res.json({ message: "Logout exitoso" });
+};
