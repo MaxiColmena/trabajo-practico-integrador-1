@@ -1,5 +1,6 @@
 import express from "express";
 import {createArticle, getAllArticle, getArticleById, updateArticle, deleteArticle, articlesGetUser, articleGetIdUser} from "../controllers/article.controllers.js";
+import { createaArticleValidation, deleteArticleValidation, updateArticleValidation, getIdArticleValidation } from "../middlewares/validations/article.validation.js";
 export const routerArticle = express.Router();
 
 routerArticle.post("/articles", createArticle);

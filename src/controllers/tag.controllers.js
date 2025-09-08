@@ -7,7 +7,7 @@ export const createTag = async (req, res) => {
     const tag = await Tag.create({
       name,
     });
-    res.status(201).json({ Message: "La etiqueta fue creada con exito" });
+    res.status(201).json({ Message: "La etiqueta fue creada con exito", tag });
   } catch (error) {
     res.status(500).json({ Error: error.message });
   }
@@ -21,9 +21,9 @@ export const updateTag = async (req, res) => {
       { where: { id: req.params.id } }
     );
     if (updated === 0) {
-      return res.status(404).json({ Message: "Tag no existe" });
+      return res.status(404).json({ Message: "La etiqueta no existe" });
     }
-    res.status(200).json({ Message: "Se actualizo un tag con éxito" });
+    res.status(200).json({ Message: "Se actualizo una etiqueta con éxito" });
   } catch (error) {
     res.status(500).json({ Message: error.message });
   }

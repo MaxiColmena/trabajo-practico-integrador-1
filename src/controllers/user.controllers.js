@@ -31,7 +31,7 @@ export const getUserById = async(req, res) => {
       attributes: { exclude: ["password"] },
       include: [
         {
-          model: ArticleModel,
+          model: Article,
           attributes: { exclude: ["user_id", "id"] },
           as: "articles",
         },
