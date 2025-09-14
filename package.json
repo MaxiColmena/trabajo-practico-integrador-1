@@ -1,7 +1,7 @@
 {
   "name": "trabajo-practico-integrador-1",
   "version": "1.0.0",
-  "description": "",
+  "description": "Objetivo:\r Desarrollar desde cero un sistema completo de blog personal que incluya autenticación de\r usuarios, gestión de artículos y etiquetas. El proyecto debe implementar todas las tecnologías\r vistas en clase: JWT, cookies, bcrypt, validaciones con express-validator, relaciones de\r Sequelize (1:1, 1:N, N:M) y operaciones CRUD completas con eliminación cascada y lógica.",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -27,8 +27,8 @@
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
     "mysql2": "^3.14.4",
     "sequelize": "^6.37.7"
-  },
-  "devDependencies": {}
+  }
 }

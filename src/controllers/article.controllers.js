@@ -1,4 +1,5 @@
 import { Article } from "../models/article.model.js";
+import { User } from "../models/user.model.js";
 
 //Esta funcionalidad crea los articulos en nuestra base de datos
 export const createArticle = async(req, res) => {
@@ -82,10 +83,10 @@ export const deleteArticle = async(req, res) =>{
 
 export const articlesGetUser = async (req, res) => {
   try {
-    const articleUserLogin = await UserModel.findByPk(req.user.id, {
+    const articleUserLogin = await User.findByPk(req.user.id, {
       attributes: { exclude: ["password"] },
       include: {
-        model: ArticleModel,
+        model: Article,
         as: "articles",
       },
     });
@@ -98,7 +99,7 @@ export const articlesGetUser = async (req, res) => {
 
 export const articleGetIdUser = async (req, res) => {
   try {
-    const articleOne = await ArticleModel.findOne({
+    const articleOne = await Article.findOne({
       where: {
         id: id,
         user_id: req.user.id,
